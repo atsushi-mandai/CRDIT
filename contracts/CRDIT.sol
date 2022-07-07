@@ -76,10 +76,10 @@ contract CRDIT is ERC20Burnable, Ownable {
     }
 
     /**
-    * @dev Returns the amount after deducting tax.
+    * @dev Returns the amount of tax required.
     */
-    function afterTax(uint _amount) public view returns(uint) {
-        return _amount - (_amount * _tax / 10000);
+    function checkTax(uint _amount) public view returns(uint) {
+        return _amount * _tax / 10000;
     }
 
 
@@ -131,8 +131,8 @@ contract CRDIT is ERC20Burnable, Ownable {
     */
     function transfer(address _to, uint256 _amount) public virtual override returns (bool) {
         address owner = _msgSender();
+        _payTax(owner, _amount);
         _transfer(owner, _to, _amount);
-        _burn(_to, _amount * _tax / 10000);
         return true;
     }
 
@@ -145,9 +145,9 @@ contract CRDIT is ERC20Burnable, Ownable {
         uint256 _amount
     ) public virtual override returns (bool) {
         address spender = _msgSender();
-        _spendAllowance(_from, spender, _amount);
+        _spendAllowance(_from, spender, _amount + (_amount * _tax / 10000));
+        _payTax(_from, _amount);
         _transfer(_from, _to, _amount);
-        _burn(_to, _amount * _tax / 10000);
         return true;
     }
 
@@ -159,6 +159,21 @@ contract CRDIT is ERC20Burnable, Ownable {
         _addressToMintLimit[_msgSender()] = _addressToMintLimit[_msgSender()] - _amount;
         _mint(_to, _amount);
         return true;
+    }
+
+
+    /**
+    *
+    *
+    * @dev private functions
+    *
+    *
+    */
+
+    function _payTax(address _from, uint _amount) private {
+        uint taxAmount = _amount * _tax / 10000;
+        require(balanceOf(_from) >= taxAmount + _amount, "Not enough balance for tax.");
+        _burn(_from, taxAmount);
     }
 
 }
