@@ -26,7 +26,7 @@ interface ICRDIT {
     /**
     * @dev Returns the amount after deducting tax.
     */
-    function afterTax(uint _amount) external view returns(uint);
+    function checkTax(uint _amount) external view returns(uint);
 
     /**
     * @dev Changes the tax rate of CRDIT.
