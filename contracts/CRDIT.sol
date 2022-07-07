@@ -3,13 +3,13 @@
 
 pragma solidity ^0.8.0;
 
-import "./token/ERC20/extensions/ERC20Capped.sol";
+import "./token/ERC20/extensions/ERC20Burnable.sol";
 import "./access/Ownable.sol";
 
 /// @title CRDIT
 /// @author Atsushi Mandai
 /// @notice Basic functions of the ERC20 Token CRDIT.
-contract CRDIT is ERC20Capped, Ownable {
+contract CRDIT is ERC20Burnable, Ownable {
 
 
     /**
