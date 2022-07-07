@@ -47,4 +47,14 @@ interface ICRDIT {
     * @dev Mints new CRDIT.
     */
     function publicMint(address _to, uint256 _amount) external returns(bool);
+
+    /**
+    * @dev Burns CRDIT.
+    */
+    function burn(uint256 amount) external;
+
+    /**
+    * @dev Burns CRDIT from its owner.
+    */
+    function burnFrom(address account, uint256 amount) external;
 }
