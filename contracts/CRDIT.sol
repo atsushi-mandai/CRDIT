@@ -145,7 +145,11 @@ contract CRDIT is ERC20Burnable, Ownable {
         uint256 _amount
     ) public virtual override returns (bool) {
         address spender = _msgSender();
-        _spendAllowance(_from, spender, _amount + (_amount * _tax / 10000));
+        uint taxAmount = 0;
+        if (_isContract(_from) == false) {
+            taxAmount = _amount * _tax / 10000;
+        }
+        _spendAllowance(_from, spender, _amount + taxAmount);
         _payTax(_from, _amount);
         _transfer(_from, _to, _amount);
         return true;
