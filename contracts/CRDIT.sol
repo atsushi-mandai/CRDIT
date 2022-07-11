@@ -11,7 +11,6 @@ import "./access/Ownable.sol";
 /// @notice Basic functions of the ERC20 Token CRDIT.
 contract CRDIT is ERC20Burnable, Ownable {
 
-
     /**
     *
     *
@@ -31,7 +30,8 @@ contract CRDIT is ERC20Burnable, Ownable {
     }
 
     /**
-    * @dev Everytime a transaction is made, {tax / 10000} will be burned from reciever's balance.
+    * @dev When a non-contract address sends this token, the sender will have to pay tax.
+    * The amount of tax is _tax / 10000, and it will be burned from sender's balance.
     */
     uint8 private _tax = 5;
 
@@ -170,10 +170,23 @@ contract CRDIT is ERC20Burnable, Ownable {
     *
     */
 
+    /**
+    * @dev Checks if the sender's address is a contract or not.
+    * If it isn't, then the tax will be payed from the sender's balance.
+    */
     function _payTax(address _from, uint _amount) private {
-        uint taxAmount = _amount * _tax / 10000;
-        require(balanceOf(_from) >= taxAmount + _amount, "Not enough balance for tax.");
-        _burn(_from, taxAmount);
+        if(_isContract(_from) == false) {
+            uint taxAmount = _amount * _tax / 10000;
+            require(balanceOf(_from) >= taxAmount + _amount, "Not enough balance for tax.");
+            _burn(_from, taxAmount);
+        }
+    }
+
+    function _isContract(address account) internal view returns (bool) {
+        // This method relies on extcodesize/address.code.length, which returns 0
+        // for contracts in construction, since the code is only stored at the end
+        // of the constructor execution.
+        return account.code.length > 0;
     }
 
 }
