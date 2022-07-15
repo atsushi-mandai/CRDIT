@@ -45,6 +45,11 @@ contract CRDIT is ERC20Burnable, Ownable {
     */
     mapping(address => uint256) private _addressToMintLimit;
 
+    /**
+    * @dev Keeps the black listed addresses.
+    */
+    mapping(address => bool) private _blackList; 
+
 
     /**
     *
@@ -73,6 +78,13 @@ contract CRDIT is ERC20Burnable, Ownable {
     */
     function mintLimitOf(address _address) public view returns(uint) {
         return _addressToMintLimit[_address];
+    }
+
+    /**
+    * @dev Returns whether the address is in the _blackList or not.
+    */
+    function blackList(address _address) public view returns(bool) {
+        return _blackList[_address];
     }
 
     /**
@@ -114,6 +126,14 @@ contract CRDIT is ERC20Burnable, Ownable {
         require(_amount < totalSupply() * _mintAddLimit / 100);
         require(_amount <= cap() - totalSupply());
         _addressToMintLimit[_address] = _amount;
+        return true;
+    }
+
+    /**
+    * @dev Changes the bool of _blackList
+    */
+    function changeBlackList(address _address, bool _bool) public onlyOwner returns(bool) {
+        _blackList[_address] = _bool;
         return true;
     }
 
