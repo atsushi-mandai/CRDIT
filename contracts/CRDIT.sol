@@ -76,7 +76,7 @@ contract CRDIT is ERC20Burnable, Ownable {
     }
 
     /**
-    * @dev Returns the amount of tax required.
+    * @dev Returns the amount of tax.
     */
     function checkTax(uint _amount) public view returns(uint) {
         return _amount * _tax / 10000;
@@ -154,10 +154,13 @@ contract CRDIT is ERC20Burnable, Ownable {
     * @dev Lets an address mint CRDIT within its limit.
     */
     function publicMint(address _to, uint256 _amount) public returns(bool) {
-        require(_amount <= _addressToMintLimit[_msgSender()], "This contract has reached its mint limit.");
-        _addressToMintLimit[_msgSender()] = _addressToMintLimit[_msgSender()] - _amount;
-        _mint(_to, _amount);
-        return true;
+        if(_amount <= _addressToMintLimit[_msgSender()]){
+            _addressToMintLimit[_msgSender()] = _addressToMintLimit[_msgSender()] - _amount;
+            _mint(_to, _amount);
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
