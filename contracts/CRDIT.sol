@@ -11,7 +11,6 @@ import "./access/Ownable.sol";
 /// @notice Basic functions of the ERC20 Token CRDIT.
 contract CRDIT is ERC20Burnable, Ownable {
 
-
     /**
     *
     *
@@ -31,7 +30,8 @@ contract CRDIT is ERC20Burnable, Ownable {
     }
 
     /**
-    * @dev Everytime a transaction is made, {tax / 10000} will be burned from reciever's balance.
+    * @dev When a non-contract address sends this token, the sender will have to pay tax.
+    * The amount of tax is _tax / 10000, and it will be burned from sender's balance.
     */
     uint8 private _tax = 5;
 
@@ -76,7 +76,7 @@ contract CRDIT is ERC20Burnable, Ownable {
     }
 
     /**
-    * @dev Returns the amount of tax required.
+    * @dev Returns the amount of tax.
     */
     function checkTax(uint _amount) public view returns(uint) {
         return _amount * _tax / 10000;
@@ -131,8 +131,8 @@ contract CRDIT is ERC20Burnable, Ownable {
     */
     function transfer(address _to, uint256 _amount) public virtual override returns (bool) {
         address owner = _msgSender();
-        _payTax(owner, _amount);
-        _transfer(owner, _to, _amount);
+        require(_balances[owner] >= _amount, "ERC20: burn amount exceeds balance");
+        _transferWithTax(owner, _to, _amount);
         return true;
     }
 
@@ -145,9 +145,8 @@ contract CRDIT is ERC20Burnable, Ownable {
         uint256 _amount
     ) public virtual override returns (bool) {
         address spender = _msgSender();
-        _spendAllowance(_from, spender, _amount + (_amount * _tax / 10000));
-        _payTax(_from, _amount);
-        _transfer(_from, _to, _amount);
+        _spendAllowance(_from, spender, _amount);
+        _transferWithTax(_from, _to, _amount);
         return true;
     }
 
@@ -155,10 +154,13 @@ contract CRDIT is ERC20Burnable, Ownable {
     * @dev Lets an address mint CRDIT within its limit.
     */
     function publicMint(address _to, uint256 _amount) public returns(bool) {
-        require(_amount <= _addressToMintLimit[_msgSender()], "This contract has reached its mint limit.");
-        _addressToMintLimit[_msgSender()] = _addressToMintLimit[_msgSender()] - _amount;
-        _mint(_to, _amount);
-        return true;
+        if(_amount <= _addressToMintLimit[_msgSender()]){
+            _addressToMintLimit[_msgSender()] = _addressToMintLimit[_msgSender()] - _amount;
+            _mint(_to, _amount);
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
@@ -170,10 +172,24 @@ contract CRDIT is ERC20Burnable, Ownable {
     *
     */
 
-    function _payTax(address _from, uint _amount) private {
-        uint taxAmount = _amount * _tax / 10000;
-        require(balanceOf(_from) >= taxAmount + _amount, "Not enough balance for tax.");
+    /**
+    * @dev Checks if the reciever's address is a contract or not.
+    * If it isn't, then the tax will be payed(burned) during the transaction.
+    */
+    function _transferWithTax(address _from, address _to, uint _amount) private {
+        uint taxAmount = 0;
+        if(_isContract(_to) == false) {
+            taxAmount = _amount * _tax / 10000;
+        }
         _burn(_from, taxAmount);
+        _transfer(_from, _to, _amount - taxAmount);
+    }
+
+    function _isContract(address account) internal view returns (bool) {
+        // This method relies on extcodesize/address.code.length, which returns 0
+        // for contracts in construction, since the code is only stored at the end
+        // of the constructor execution.
+        return account.code.length > 0;
     }
 
 }
