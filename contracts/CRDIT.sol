@@ -21,7 +21,7 @@ contract CRDIT is ERC20Burnable, Ownable {
 
     /** 
     * @dev ERC20 Token "Credit" (ticker "CRDIT") has max supply of 100,000,000.
-    * Founder takes 10% of the max supply as an incentive for him and early collaborators.
+    * Founder takes 20% of the max supply as an incentive for him and early collaborators.
     * All the remaining tokens will be minted through a non-arbitrary algorithm.
     */
     constructor () ERC20 ("Credit", "CRDIT") ERC20Capped(100000000 * (10**uint256(18)))
@@ -123,8 +123,8 @@ contract CRDIT is ERC20Burnable, Ownable {
     * @dev Sets new mint limit to an address.
     */
     function changeMintLimit(address _address, uint _amount) public onlyOwner returns(bool) {
-        require(_amount < totalSupply() * _mintAddLimit / 100);
-        require(_amount <= cap() - totalSupply());
+        require(_amount < totalSupply() * _mintAddLimit / 100, "mint limit trying to be set exceeds the allowed amount.");
+        require(_amount <= cap() - totalSupply(), "mint limit trying to be set exceeds the cap of CRDIT.");
         _addressToMintLimit[_address] = _amount;
         return true;
     }
@@ -151,7 +151,7 @@ contract CRDIT is ERC20Burnable, Ownable {
     */
     function transfer(address _to, uint256 _amount) public virtual override returns (bool) {
         address owner = _msgSender();
-        require(_balances[owner] >= _amount, "ERC20: burn amount exceeds balance");
+        require(_balances[owner] >= _amount, "ERC20: amount exceeds balance");
         _transferWithTax(owner, _to, _amount);
         return true;
     }
@@ -174,6 +174,7 @@ contract CRDIT is ERC20Burnable, Ownable {
     * @dev Lets an address mint CRDIT within its limit.
     */
     function publicMint(address _to, uint256 _amount) public returns(bool) {
+        _checkBlackList(_to);
         if(_amount <= _addressToMintLimit[_msgSender()]){
             _addressToMintLimit[_msgSender()] = _addressToMintLimit[_msgSender()] - _amount;
             _mint(_to, _amount);
@@ -197,12 +198,21 @@ contract CRDIT is ERC20Burnable, Ownable {
     * If it isn't, then the tax will be payed(burned) during the transaction.
     */
     function _transferWithTax(address _from, address _to, uint _amount) private {
+        _checkBlackList(_from);
+        _checkBlackList(_to);
         uint taxAmount = 0;
         if(_isContract(_to) == false) {
             taxAmount = _amount * _tax / 10000;
         }
         _burn(_from, taxAmount);
         _transfer(_from, _to, _amount - taxAmount);
+    }
+
+    /**
+    * @dev Checks if the address is in the _blackList or not.
+    */
+    function _checkBlackList(address _address) private view {
+        require(_blackList[_address] == false, "address is in the blacklist.");
     }
 
     function _isContract(address account) internal view returns (bool) {
