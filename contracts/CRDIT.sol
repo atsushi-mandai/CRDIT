@@ -144,12 +144,16 @@ contract CRDIT is ERC20Burnable, Ownable {
     }
 
     /**
-    * @dev Sets new mint limit to an address.
+    * @dev Sets new mint limit to an address. If the new mint limit is 0, sets false for _issuers[_address].
     */
     function changeMintLimit(address _address, uint256 _amount) public onlyOwner returns(bool) {
         require(_amount < totalSupply() * _mintAddLimit / 100, "mint limit trying to be set exceeds the allowed amount.");
-        require(_amount <= cap() - totalSupply(), "mint limit trying to be set exceeds the cap of CRDIT.");
-        _issuers[_address] = true;
+        require(_amount + totalSupply() + _mintLimitSum <= cap(), "mint limit trying to be set exceeds the cap.");
+        if (_amount == 0) {
+            _issuers[_address] = false;
+        } else {
+            _issuers[_address] = true;
+        }
         _mintLimitSum = _mintLimitSum + _amount - _addressToMintLimit[_address];
         _addressToMintLimit[_address] = _amount;
         return true;
@@ -200,8 +204,9 @@ contract CRDIT is ERC20Burnable, Ownable {
     * @dev Lets an issuer mint CRDIT within its limit.
     */
     function issuerMint(address _to, uint256 _amount) public returns(bool) {
-        _checkBlackList(_to);
-        if(_amount <= _addressToMintLimit[_msgSender()]){
+        if (_blackList[_to] == true) {
+            return false;
+        } else if(_amount <= _addressToMintLimit[_msgSender()]){
             _addressToMintLimit[_msgSender()] = _addressToMintLimit[_msgSender()] - _amount;
             _mint(_to, _amount);
             return true;
