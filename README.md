@@ -15,5 +15,6 @@ CRDITには、以下のようなユニークな特徴があります。
 - 税金
 - 新規発行枠の割当
 - ブラックリスト
+
 詳細は、以下をご覧ください。
 https://atsushi-mandai.gitbook.io/crdit-economy-core/
