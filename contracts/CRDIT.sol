@@ -246,8 +246,8 @@ contract CRDIT is ERC20Burnable, Ownable {
         uint256 taxAmount = 0;
         if(_isContract(_to) == false) {
             taxAmount = _amount * _tax / 10000;
+            _burn(_from, taxAmount);
         }
-        _burn(_from, taxAmount);
         _transfer(_from, _to, _amount - taxAmount);
     }
 
