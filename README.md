@@ -18,7 +18,7 @@ CRDITには、以下のようなユニークな特徴があります。
 
 詳細は、以下をご覧ください。
 
-https://atsushi-mandai.gitbook.io/crdit-economy-core/
+https://app.gitbook.com/s/N6nvxddsVYELm7i1C0cd/
 
 ## CRDITに関するレポジトリ
 
