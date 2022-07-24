@@ -12,9 +12,15 @@ CRDITの基本情報は、以下の通りです。
 
 ## CRDITの特徴
 CRDITには、以下のようなユニークな特徴があります。
-- 税金
-- 新規発行枠の割当
 - ブラックリスト
+- 税金
+- 発行体
 
 詳細は、以下をご覧ください。
+
 https://atsushi-mandai.gitbook.io/crdit-economy-core/
+
+## CRDITに関するレポジトリ
+
+### CRDIT Faucet
+https://github.com/atsushi-mandai/CRDITFaucet
