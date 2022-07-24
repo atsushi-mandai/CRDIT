@@ -24,7 +24,7 @@ contract CRDIT is ERC20Burnable, Ownable {
     * Founder takes 20% of the max supply as an incentive for him and early collaborators.
     * All the remaining tokens will be minted through a non-arbitrary algorithm.
     */
-    constructor () ERC20 ("Credit", "CRDIT") ERC20Capped(100000000 * (10**uint256(18)))
+    constructor () ERC20 ("Credit v1", "CRDIT") ERC20Capped(100000000 * (10**uint256(18)))
     {
         ERC20._mint(_msgSender(),20000000 * (10**uint256(18)));
     }
