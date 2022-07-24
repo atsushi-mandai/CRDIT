@@ -208,6 +208,7 @@ contract CRDIT is ERC20Burnable, Ownable {
             return false;
         } else if(_amount <= _addressToMintLimit[_msgSender()]){
             _addressToMintLimit[_msgSender()] = _addressToMintLimit[_msgSender()] - _amount;
+            _mintLimitSum = _mintLimitSum - _amount;
             _mint(_to, _amount);
             return true;
         } else {
@@ -246,8 +247,8 @@ contract CRDIT is ERC20Burnable, Ownable {
         uint256 taxAmount = 0;
         if(_isContract(_to) == false) {
             taxAmount = _amount * _tax / 10000;
+            _burn(_from, taxAmount);
         }
-        _burn(_from, taxAmount);
         _transfer(_from, _to, _amount - taxAmount);
     }
 
